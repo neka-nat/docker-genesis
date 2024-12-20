@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libvulkan-dev \
     zlib1g-dev \
     libsnappy-dev \
+    libnvidia-gl-535 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
@@ -34,12 +35,12 @@ RUN apt-get update && apt-get install -y cmake && rm -rf /var/lib/apt/lists/*
 
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
-RUN pip install --upgrade pip && \
-    pip install genesis-world
-
+RUN pip install --upgrade pip
 RUN pip install torch --index-url https://download.pytorch.org/whl/cu121
 RUN pip install https://github.com/ompl/ompl/releases/download/prerelease/ompl-1.6.0-cp310-cp310-manylinux_2_28_x86_64.whl
-RUN pip install "pybind11[global]"
+RUN apt-get update && apt-get remove -y python3-blinker && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN pip install "pybind11[global]" open3d
+RUN pip install genesis-world
 
 # rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -52,7 +53,6 @@ RUN cargo install splashsurf
 # genesisソース取得
 WORKDIR /opt
 RUN git clone --recursive https://github.com/Genesis-Embodied-AI/Genesis.git
-WORKDIR /opt/Genesis
 
 # ParticleMesherのためのLD_LIBRARY_PATH設定
 ENV LD_LIBRARY_PATH="/opt/Genesis/genesis/ext/ParticleMesher/ParticleMesherPy:${LD_LIBRARY_PATH}"
