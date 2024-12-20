@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  genesis:
+    build: .
+    image: genesis_full:latest
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./:/workspace
+    network_mode: host
+    devices:
+      - "/dev/dri/:/dev/dri/"
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities: [gpu]
